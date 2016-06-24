@@ -1,3 +1,5 @@
+@players = {}
+
 def generate_question
 	num1 = rand(20)
 	num2 = rand(20)
@@ -31,6 +33,14 @@ def generate_division(num1,num2)
 	question = { question: "What does #{num1} divided by #{num2} equal?", answer: answer}
 end
 
+def get_players
+	puts "How many players will play?"
+	(gets.strip.to_i).times do |current_player|
+		puts "What is Player #{current_player+1}'s name?"
+		@players[gets.strip] = 0
+	end
+end
+
 def get_input
 	puts "Tell us your answer."
 	gets.strip
@@ -44,9 +54,11 @@ end
 
 def show_results
 	puts "The game has ended!"
-	puts "The winner is: #{(@scores[:player1] == 0 ? "Player 2" : "Player 1")}!"
-	puts "Player 1: #{@scores[:player1]}"
-	puts "Player 2: #{@scores[:player2]}"
+	puts "The loser is: #{(@scores.detect { |k,v| v <= 0 }).first}"
+	@players.each do |(k,v)|
+		@players[k] += @scores[k]
+		puts "#{k}: #{@scores[k]} [Running score: #{@players[k]}]"
+	end
 end
 
 def greenify(string)
@@ -57,32 +69,30 @@ def redify(string)
 	"\e[31m#{string}\e[0m"
 end
 
-def main
-	player1 = true
+def game_proc
 	@scores = Hash.new(3)
-	while @scores[:player1] != 0 && @scores[:player2] != 0 do
-		question = generate_question
-		if player1
-			puts "Player 1: #{question[:question]}"
+	until @scores.detect { |(k,v)| v <= 0} do
+		@players.keys.each do |player|
+			question = generate_question
+			puts "#{player}: #{question[:question]}"
 			if get_input.to_i != question[:answer]
 				puts redify("Sorry you were wrong. The answer was #{question[:answer]}")
-				@scores[:player1] -= 1
-			else
-				puts greenify("Good job. #{question[:answer]} was the right answer!")
-			end
-		else
-			puts "Player 2: #{question[:question]}"
-			if get_input.to_i != question[:answer].to_i
-				puts redify("Sorry you were wrong. The answer was #{question[:answer]}")
-				@scores[:player2] -= 1
-			else
-				puts greenify("Good job. #{question[:answer]} was the right answer!")
-			end
+		 		@scores[player] -= 1
+		 		if @scores[player] <= 0
+		 			break
+		 		end
+		 	else
+		 		puts greenify("Good job. #{question[:answer]} was the right answer!")
+		 	end
 		end
-		player1 = !player1
 	end
 	show_results
-	restart? ? main : (puts "Goodbye")
+	restart? ? game_proc : (puts "Goodbye")
+end
+
+def main
+	get_players
+	game_proc
 end
 
 main

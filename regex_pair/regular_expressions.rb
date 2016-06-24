@@ -56,13 +56,14 @@ puts hide_all_sins(string) == string
 # Ensure all of the Social Insurance numbers use dashes for delimiters.
 # Example: 480.01.4430 and 480014430 would both be 480-01-4430.
 def format_sins(string)
-	matches = string.scan(/\b\d{3}[\D]?\d{3}[\D]?\d{3}[\D]?\b/)
+	matches = string.scan(/(?<prefix>.*)\b\d{3}[\D]?\d{3}[\D]?\d{3}[\D]?\b/)
 	result = matches.map { |s| s.gsub(/\b(\d{3})[\D]?(\d{3})[\D]?(\d{3})[\D]?\b/, '\1-\2-\3')}.join(", ")
 	result == "" ? string : result
 end
 
 puts "format_sins finds and reformat any SINs in the string"
 puts format_sins("234600142, 350.800.074, 013-600-876") == "234-600-142, 350-800-074, 013-600-876"
+puts format_sins("please confirm: 234600142")
 
 puts "format_sins does not alter a string without SINs in it"
 string = "please confirm your identity: 4421422"

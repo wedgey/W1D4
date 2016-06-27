@@ -4,6 +4,7 @@
 require 'pry'
 require './candidates'
 require './filters'
+require './errors'
 
 ## Your test code can go here
 

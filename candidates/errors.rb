@@ -1,0 +1,2 @@
+class InvalidCandidateError < StandardError
+end
